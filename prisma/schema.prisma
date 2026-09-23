@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SALES
+  DEVELOPER
+  MARKETING
+}
+
+enum CardStatus {
+  NEW_LEAD
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum ActivityType {
+  SALES_UPDATE
+  DEV_PROGRESS
+  MARKETING_OFFER
+  STATUS_CHANGE
+  NOTE
+}
+
+model User {
+  id            String     @id @default(cuid())
+  name          String
+  email         String     @unique
+  passwordHash  String
+  role          Role
+  employeeId    String?
+  phone         String?
+  avatarUrl     String?
+  createdAt     DateTime   @default(now())
+
+  createdCards      Card[]     @relation("CardCreatedBy")
+  assignedCards      Card[]     @relation("CardAssignedDeveloper")
+  activities         Activity[]
+}
+
+model Card {
+  id                String       @id @default(cuid())
+  title             String
+  clientName        String
+  clientContact     String?
+  description       String?
+  status            CardStatus   @default(NEW_LEAD)
+
+  createdById       String
+  createdBy         User         @relation("CardCreatedBy", fields: [createdById], references: [id])
+
+  assignedDeveloperId String?
+  assignedDeveloper   User?      @relation("CardAssignedDeveloper", fields: [assignedDeveloperId], references: [id])
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  activities        Activity[]
+
+  @@index([status])
+  @@index([assignedDeveloperId])
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  cardId      String
+  card        Card         @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  authorId    String
+  author      User         @relation(fields: [authorId], references: [id])
+
+  type        ActivityType
+  content     String
+
+  offerAmount Decimal?     @db.Decimal(14, 2)
+
+  createdAt   DateTime     @default(now())
+
+  @@index([cardId])
+}
