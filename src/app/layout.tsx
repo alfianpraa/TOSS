@@ -9,12 +9,12 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   title: "TOSS",
-  description: "Sistem ticketing lead, project, dan laporan tim.",
+  description: "Lead, project, and team reporting ticketing system.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${manrope.variable} h-full antialiased`}>
+    <html lang="en" className={`${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );

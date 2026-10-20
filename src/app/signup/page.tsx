@@ -15,11 +15,11 @@ export default function SignupPage() {
               <Ticket className="h-4 w-4" />
             </div>
 
-            <h1 className="mt-4 text-2xl font-bold text-zinc-900">Daftar</h1>
+            <h1 className="mt-4 text-2xl font-bold text-zinc-900">Sign Up</h1>
             <p className="mt-1 text-sm text-zinc-500">
-              Sudah punya akun?{" "}
+              Already have an account?{" "}
               <Link href="/login" className="font-semibold text-brand underline underline-offset-2 hover:opacity-80">
-                Masuk
+                Log In
               </Link>
             </p>
 
@@ -28,8 +28,8 @@ export default function SignupPage() {
             </div>
 
             <p className="mt-4 text-xs text-zinc-400">
-              Akun Admin tidak bisa dibuat lewat form ini. Hubungi admin
-              sistem kalau butuh akses Admin.
+              Admin accounts can&apos;t be created through this form. Contact
+              your system admin if you need Admin access.
             </p>
           </div>
         </div>

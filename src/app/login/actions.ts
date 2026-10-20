@@ -24,7 +24,7 @@ export async function loginAction(
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Email atau password salah." };
+      return { error: "Invalid email or password." };
     }
     throw error;
   }

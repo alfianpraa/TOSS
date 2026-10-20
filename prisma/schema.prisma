@@ -27,6 +27,30 @@ enum ActivityType {
   MARKETING_OFFER
   STATUS_CHANGE
   NOTE
+  REPLY
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum NotificationType {
+  LEAD_ASSIGNED
+  LEAD_CLAIMED
+  COMMENT_REPLY
+  ASSIGNMENT_ACCEPTED
+  ASSIGNMENT_DECLINED
+  ROLE_CHANGE_REQUESTED
+  ROLE_CHANGE_APPROVED
+  ROLE_CHANGE_REJECTED
+  DEADLINE_APPROACHING
+  STATUS_APPROVAL_REQUESTED
+  STATUS_APPROVED
+  STATUS_REJECTED
+  MENTION
+  LEAD_HANDOFF
 }
 
 model User {
@@ -35,14 +59,20 @@ model User {
   email         String     @unique
   passwordHash  String
   role          Role
+  pendingRole   Role?
   employeeId    String?
   phone         String?
   avatarUrl     String?
   createdAt     DateTime   @default(now())
 
   createdCards      Card[]     @relation("CardCreatedBy")
+  ownedCards         Card[]     @relation("CardSalesOwner")
+  pendingSalesCards  Card[]     @relation("CardPendingSales")
   assignedCards      Card[]     @relation("CardAssignedDeveloper")
+  pendingCards       Card[]     @relation("CardPendingDeveloper")
   activities         Activity[]
+  uploadedFiles      CardFile[]
+  notifications      Notification[]
 }
 
 model Card {
@@ -52,20 +82,36 @@ model Card {
   clientContact     String?
   description       String?
   status            CardStatus   @default(NEW_LEAD)
+  pendingStatus     CardStatus?
+  priority          Priority     @default(MEDIUM)
+  dueDate           DateTime?
 
-  createdById       String
+  createdById      String
   createdBy         User         @relation("CardCreatedBy", fields: [createdById], references: [id])
 
+  salesOwnerId      String?
+  salesOwner        User?      @relation("CardSalesOwner", fields: [salesOwnerId], references: [id])
+
+  pendingSalesId    String?
+  pendingSales      User?      @relation("CardPendingSales", fields: [pendingSalesId], references: [id])
+
   assignedDeveloperId String?
-  assignedDeveloper   User?      @relation("CardAssignedDeveloper", fields: [assignedDeveloperId], references: [id])
+  assignedDeveloper   User?    @relation("CardAssignedDeveloper", fields: [assignedDeveloperId], references: [id])
+
+  pendingDeveloperId String?
+  pendingDeveloper   User?      @relation("CardPendingDeveloper", fields: [pendingDeveloperId], references: [id])
 
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 
   activities        Activity[]
+  files             CardFile[]
+  notifications     Notification[]
 
   @@index([status])
   @@index([assignedDeveloperId])
+  @@index([salesOwnerId])
+  @@index([dueDate])
 }
 
 model Activity {
@@ -80,8 +126,55 @@ model Activity {
   content     String
 
   offerAmount Decimal?     @db.Decimal(14, 2)
+  editedAt    DateTime?
+
+  parentId    String?
+  parent      Activity?    @relation("ActivityReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Activity[]   @relation("ActivityReplies")
 
   createdAt   DateTime     @default(now())
 
+  files       CardFile[]
+
   @@index([cardId])
+  @@index([parentId])
+}
+
+model CardFile {
+  id            String    @id @default(cuid())
+  cardId        String
+  card          Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  activityId    String?
+  activity      Activity? @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  uploadedById  String
+  uploadedBy    User      @relation(fields: [uploadedById], references: [id])
+
+  filename      String
+  storedName    String
+  mimeType      String
+  size          Int
+
+  createdAt     DateTime  @default(now())
+
+  @@index([cardId])
+  @@index([activityId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      NotificationType
+  message   String
+
+  cardId    String?
+  card      Card?            @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
 }

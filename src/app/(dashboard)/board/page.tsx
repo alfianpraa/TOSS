@@ -1,53 +1,57 @@
+import { Inbox, Clock, CheckCircle2 } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Board } from "@/components/board/Board";
 import { WelcomeHeader } from "@/components/board/WelcomeHeader";
 import { StatsRow } from "@/components/board/StatsRow";
+import { LeadFilters } from "@/components/board/LeadFilters";
+import { buildCardWhere, type CardFilterParams } from "@/lib/cardFilters";
 import { canCreateCard } from "@/lib/permissions";
 import { getInitials } from "@/lib/initials";
 import type { Role } from "@prisma/client";
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-    notation: value >= 1_000_000 ? "compact" : "standard",
-  }).format(value);
-}
-
-export default async function BoardPage() {
+export default async function BoardPage({
+  searchParams,
+}: {
+  searchParams: Promise<CardFilterParams>;
+}) {
+  const filters = await searchParams;
   const session = await auth();
   const user = session!.user;
   const role = user.role as Role;
 
-  const [cards, leadBaruCount, dikerjakanCount, selesaiCount, offerAgg, currentUser] =
+  const [cards, salesUsers, developers, leadBaruCount, dikerjakanCount, selesaiCount, currentUser] =
     await Promise.all([
       prisma.card.findMany({
+        where: buildCardWhere(filters),
         include: {
           createdBy: { select: { id: true, name: true } },
+          salesOwner: { select: { id: true, name: true } },
+          pendingSales: { select: { id: true, name: true } },
           assignedDeveloper: { select: { id: true, name: true } },
+          pendingDeveloper: { select: { id: true, name: true } },
           _count: { select: { activities: true } },
         },
         orderBy: { createdAt: "desc" },
       }),
+      prisma.user.findMany({
+        where: { role: "SALES" },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
+      prisma.user.findMany({
+        where: { role: "DEVELOPER" },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
       prisma.card.count({ where: { status: "NEW_LEAD" } }),
       prisma.card.count({ where: { status: "IN_PROGRESS" } }),
       prisma.card.count({ where: { status: "DONE" } }),
-      prisma.activity.aggregate({
-        where: { type: "MARKETING_OFFER" },
-        _sum: { offerAmount: true },
-        _count: true,
-      }),
       prisma.user.findUnique({
         where: { id: user.id },
         select: { avatarUrl: true },
       }),
     ]);
-
-  const totalOfferValue = offerAgg._sum.offerAmount
-    ? Number(offerAgg._sum.offerAmount)
-    : 0;
 
   const initials = user.name ? getInitials(user.name) : "";
 
@@ -57,36 +61,52 @@ export default async function BoardPage() {
         name={user.name ?? ""}
         initials={initials}
         avatarUrl={currentUser?.avatarUrl ?? null}
-        subtitle={`Ada ${leadBaruCount} lead baru dan ${dikerjakanCount} project sedang berjalan.`}
+        subtitle={`You have ${leadBaruCount} new lead(s) and ${dikerjakanCount} project(s) in progress.`}
       />
 
       <StatsRow
         stats={[
-          { label: "Lead Baru", value: String(leadBaruCount), hint: "Menunggu diambil" },
-          { label: "Dikerjakan", value: String(dikerjakanCount), hint: "Sedang berjalan" },
-          { label: "Selesai", value: String(selesaiCount), hint: "Project rampung" },
           {
-            label: "Total Penawaran",
-            value: formatCurrency(totalOfferValue),
-            hint: `${offerAgg._count} penawaran terkirim`,
+            label: "New Leads",
+            value: String(leadBaruCount),
+            hint: "Awaiting claim",
+            icon: Inbox,
+            color: "sky",
+          },
+          {
+            label: "In Progress",
+            value: String(dikerjakanCount),
+            hint: "Currently ongoing",
+            icon: Clock,
+            color: "amber",
+          },
+          {
+            label: "Completed",
+            value: String(selesaiCount),
+            hint: "Projects completed",
+            icon: CheckCircle2,
+            color: "emerald",
           },
         ]}
       />
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-zinc-900">Board Lead & Project</h2>
+          <h2 className="text-lg font-semibold text-zinc-900">Lead & Project Board</h2>
           <p className="text-sm text-zinc-500">
-            Pantau perjalanan lead dari masuk sampai selesai.
+            Track the lead journey from intake to completion.
           </p>
         </div>
       </div>
+
+      <LeadFilters basePath="/board" developers={developers} />
 
       <Board
         cards={cards}
         currentUserId={session!.user.id}
         role={role}
         canCreate={canCreateCard(role)}
+        salesUsers={salesUsers}
       />
     </div>
   );

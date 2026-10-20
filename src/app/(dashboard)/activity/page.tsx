@@ -44,9 +44,9 @@ export default async function ActivityPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold text-zinc-900">Aktivitas</h1>
+        <h1 className="text-lg font-semibold text-zinc-900">Activity</h1>
         <p className="text-sm text-zinc-500">
-          Timeline seluruh laporan dan perkembangan dari semua user.
+          Timeline of all reports and updates from every user.
         </p>
       </div>
 

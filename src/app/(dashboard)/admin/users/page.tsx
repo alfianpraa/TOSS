@@ -3,6 +3,7 @@ import { Avatar } from "@/components/profile/Avatar";
 import { ROLE_LABELS } from "@/lib/permissions";
 import { getInitials } from "@/lib/initials";
 import { EditUserDialog } from "@/components/admin/EditUserDialog";
+import { RoleRequestActions } from "@/components/admin/RoleRequestActions";
 
 export default async function AdminUsersPage() {
   const users = await prisma.user.findMany({
@@ -12,6 +13,7 @@ export default async function AdminUsersPage() {
       name: true,
       email: true,
       role: true,
+      pendingRole: true,
       employeeId: true,
       phone: true,
       avatarUrl: true,
@@ -25,8 +27,8 @@ export default async function AdminUsersPage() {
           <tr>
             <th className="px-4 py-3 font-medium">User</th>
             <th className="px-4 py-3 font-medium">Role</th>
-            <th className="px-4 py-3 font-medium">ID Karyawan</th>
-            <th className="px-4 py-3 font-medium">No. HP</th>
+            <th className="px-4 py-3 font-medium">Employee ID</th>
+            <th className="px-4 py-3 font-medium">Phone</th>
             <th className="px-4 py-3 font-medium"></th>
           </tr>
         </thead>
@@ -46,6 +48,13 @@ export default async function AdminUsersPage() {
               </td>
               <td className="px-4 py-3 text-zinc-600">
                 {ROLE_LABELS[user.role]}
+                {user.pendingRole && (
+                  <RoleRequestActions
+                    userId={user.id}
+                    userName={user.name}
+                    pendingRole={user.pendingRole}
+                  />
+                )}
               </td>
               <td className="px-4 py-3 text-zinc-600">
                 {user.employeeId || "-"}

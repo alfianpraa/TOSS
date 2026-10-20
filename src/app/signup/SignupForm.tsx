@@ -17,7 +17,7 @@ export function SignupForm() {
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="name" className={labelClass}>
-            Nama
+            Name
             <span className="h-px flex-1 bg-zinc-200" />
           </label>
           <input
@@ -27,7 +27,7 @@ export function SignupForm() {
             required
             autoComplete="name"
             className={fieldClass}
-            placeholder="Nama lengkap"
+            placeholder="Full name"
           />
         </div>
 
@@ -58,7 +58,7 @@ export function SignupForm() {
           required
           autoComplete="email"
           className={fieldClass}
-          placeholder="nama@perusahaan.com"
+          placeholder="name@company.com"
         />
       </div>
 
@@ -76,13 +76,13 @@ export function SignupForm() {
             minLength={8}
             autoComplete="new-password"
             className={fieldClass}
-            placeholder="Min. 8 karakter"
+            placeholder="Min. 8 characters"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="confirmPassword" className={labelClass}>
-            Konfirmasi
+            Confirm
             <span className="h-px flex-1 bg-zinc-200" />
           </label>
           <input
@@ -93,7 +93,7 @@ export function SignupForm() {
             minLength={8}
             autoComplete="new-password"
             className={fieldClass}
-            placeholder="Ulangi password"
+            placeholder="Repeat password"
           />
         </div>
       </div>
@@ -105,7 +105,7 @@ export function SignupForm() {
         disabled={pending}
         className="mt-1 cursor-pointer rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {pending ? "Mendaftar..." : "Daftar"}
+        {pending ? "Signing up..." : "Sign Up"}
       </button>
     </form>
   );

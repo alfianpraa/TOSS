@@ -29,12 +29,12 @@ export function LoginHero() {
 
       <div className="relative flex flex-col gap-6">
         <h1 className="max-w-md text-4xl font-semibold leading-tight text-white">
-          Satu tempat untuk lead sampai project selesai
+          One place for leads through project completion
         </h1>
         <p className="max-w-sm text-sm leading-6 text-white/70">
-          Sales membuka lead baru, Developer mengambil &amp; melaporkan
-          progress, Marketing memantau dan menambahkan penawaran — semua
-          tercatat rapi dalam satu board.
+          Sales opens new leads, Developers claim &amp; report progress,
+          Marketing tracks and adds offers — all recorded neatly on one
+          board.
         </p>
 
         <div className="mt-4 flex items-center gap-3">
@@ -49,7 +49,7 @@ export function LoginHero() {
             ))}
           </div>
           <p className="text-xs text-white/70">
-            Dipakai lintas tim: Sales, Developer, Marketing, Admin
+            Used across teams: Sales, Developer, Marketing, Admin
           </p>
         </div>
       </div>

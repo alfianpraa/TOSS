@@ -22,11 +22,11 @@ export default async function LoginPage({
               <Ticket className="h-4 w-4" />
             </div>
 
-            <h1 className="mt-4 text-2xl font-bold text-zinc-900">Masuk</h1>
+            <h1 className="mt-4 text-2xl font-bold text-zinc-900">Log In</h1>
             <p className="mt-1 text-sm text-zinc-500">
-              Belum punya akun?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/signup" className="font-semibold text-brand underline underline-offset-2 hover:opacity-80">
-                Daftar
+                Sign up
               </Link>
             </p>
 
@@ -35,14 +35,14 @@ export default async function LoginPage({
             </div>
 
             <div className="mt-5 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-500">
-              <p className="font-medium text-zinc-700">Akun demo</p>
+              <p className="font-medium text-zinc-700">Demo accounts</p>
               <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1">
                 <p>sales@demo.com</p>
                 <p>developer@demo.com</p>
                 <p>marketing@demo.com</p>
                 <p>admin@demo.com</p>
               </div>
-              <p className="mt-1.5 text-zinc-400">Password semua: Password123!</p>
+              <p className="mt-1.5 text-zinc-400">Password for all: Password123!</p>
             </div>
           </div>
         </div>

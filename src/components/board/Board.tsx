@@ -17,10 +17,10 @@ import { updateCardStatus } from "@/lib/actions/cards";
 import { canChangeStatus } from "@/lib/permissions";
 
 const COLUMNS: { status: CardStatus; title: string }[] = [
-  { status: "NEW_LEAD", title: "Lead Baru" },
-  { status: "IN_PROGRESS", title: "Dikerjakan" },
-  { status: "DONE", title: "Selesai" },
-  { status: "CANCELLED", title: "Batal" },
+  { status: "NEW_LEAD", title: "New Lead" },
+  { status: "IN_PROGRESS", title: "In Progress" },
+  { status: "DONE", title: "Done" },
+  { status: "CANCELLED", title: "Cancelled" },
 ];
 
 export function Board({
@@ -28,13 +28,16 @@ export function Board({
   currentUserId,
   role,
   canCreate,
+  salesUsers,
 }: {
   cards: CardWithRelations[];
   currentUserId: string;
   role: Role;
   canCreate: boolean;
+  salesUsers: { id: string; name: string }[];
 }) {
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const router = useRouter();
 
@@ -62,18 +65,22 @@ export function Board({
     if (!card || card.status === newStatus) return;
 
     if (!canChangeStatus(role, currentUserId, card)) {
-      setError("Anda tidak punya izin memindahkan card ini.");
+      setError("You don't have permission to move this card.");
       return;
     }
 
     setError(null);
+    setInfo(null);
     startTransition(async () => {
       setOptimisticStatus({ cardId, status: newStatus });
       try {
-        await updateCardStatus(cardId, newStatus);
+        const result = await updateCardStatus(cardId, newStatus);
+        if (result.pendingApproval) {
+          setInfo("Request sent. The Sales who owns this lead must approve before it moves.");
+        }
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Gagal memindahkan card.");
+        setError(err instanceof Error ? err.message : "Failed to move card.");
       }
     });
   }
@@ -83,10 +90,12 @@ export function Board({
       <div className="flex items-center justify-between">
         {error ? (
           <p className="text-sm text-red-600">{error}</p>
+        ) : info ? (
+          <p className="text-sm text-violet-700">{info}</p>
         ) : (
           <span />
         )}
-        {canCreate && <NewCardDialog />}
+        {canCreate && <NewCardDialog role={role} salesUsers={salesUsers} />}
       </div>
 
       <DndContext id="board-dnd" sensors={sensors} onDragEnd={handleDragEnd}>

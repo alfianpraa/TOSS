@@ -18,7 +18,7 @@ export function WelcomeHeader({
       <Avatar avatarUrl={avatarUrl} initials={initials} size={48} />
       <div>
         <h1 className="text-xl font-bold text-zinc-900">
-          Selamat datang, {firstName}!
+          Welcome, {firstName}!
         </h1>
         <p className="text-sm text-zinc-500">{subtitle}</p>
       </div>

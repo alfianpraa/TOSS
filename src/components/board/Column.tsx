@@ -45,7 +45,7 @@ export function Column({
         ))}
         {cards.length === 0 && (
           <p className="rounded-md border border-dashed border-zinc-300 p-4 text-center text-xs text-zinc-400">
-            Tidak ada card
+            No cards
           </p>
         )}
       </div>

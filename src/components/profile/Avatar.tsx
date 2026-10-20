@@ -14,7 +14,7 @@ export function Avatar({
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={avatarUrl}
-        alt="Foto profil"
+        alt="Profile photo"
         width={size}
         height={size}
         className={`shrink-0 rounded-full object-cover ${className}`}

@@ -14,15 +14,49 @@ export function allowedRolesFor(currentRole: Role): Role[] {
 }
 
 export const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {
-  SALES_UPDATE: "Update Sales",
-  DEV_PROGRESS: "Progress Developer",
-  MARKETING_OFFER: "Penawaran Marketing",
-  STATUS_CHANGE: "Perubahan Status",
-  NOTE: "Catatan",
+  SALES_UPDATE: "Sales Update",
+  DEV_PROGRESS: "Developer Progress",
+  MARKETING_OFFER: "Marketing Offer",
+  STATUS_CHANGE: "Status Change",
+  NOTE: "Note",
+  REPLY: "Reply",
 };
 
 export function canCreateCard(role: Role) {
-  return role === "SALES" || role === "ADMIN";
+  return role === "SALES" || role === "MARKETING" || role === "ADMIN";
+}
+
+// Marketing (creator) or Admin may hand an untouched lead over to a Sales.
+export function canHandOffCard(
+  role: Role,
+  userId: string,
+  card: Pick<
+    Card,
+    "createdById" | "status" | "assignedDeveloperId" | "pendingDeveloperId" | "pendingSalesId"
+  >
+) {
+  if (
+    card.status !== "NEW_LEAD" ||
+    card.assignedDeveloperId ||
+    card.pendingDeveloperId ||
+    card.pendingSalesId
+  ) {
+    return false;
+  }
+  return role === "ADMIN" || (role === "MARKETING" && card.createdById === userId);
+}
+
+// A lead without a Sales owner can be claimed by any Sales (or Admin).
+export function canClaimAsSales(
+  role: Role,
+  card: Pick<Card, "salesOwnerId" | "pendingSalesId" | "status">
+) {
+  return (
+    (role === "SALES" || role === "ADMIN") &&
+    !card.salesOwnerId &&
+    !card.pendingSalesId &&
+    card.status === "NEW_LEAD"
+  );
 }
 
 export function canTakeCard(role: Role) {
@@ -32,12 +66,21 @@ export function canTakeCard(role: Role) {
 export function canChangeStatus(
   role: Role,
   userId: string,
-  card: Pick<Card, "createdById" | "assignedDeveloperId">
+  card: Pick<Card, "salesOwnerId" | "assignedDeveloperId">
 ) {
   if (role === "ADMIN") return true;
-  if (role === "SALES" && card.createdById === userId) return true;
+  if (role === "SALES" && card.salesOwnerId === userId) return true;
   if (role === "DEVELOPER" && card.assignedDeveloperId === userId) return true;
   return false;
+}
+
+export function canEditCardMeta(
+  role: Role,
+  userId: string,
+  card: Pick<Card, "salesOwnerId">
+) {
+  if (role === "ADMIN") return true;
+  return role === "SALES" && card.salesOwnerId === userId;
 }
 
 export function allowedActivityTypes(

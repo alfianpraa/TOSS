@@ -34,30 +34,30 @@ async function main() {
   const sales = createdUsers.find((u) => u.role === "SALES")!;
 
   const existingCard = await prisma.card.findFirst({
-    where: { title: "Website Company Profile - PT Maju Jaya" },
+    where: { title: "Company Profile Website - PT Maju Jaya" },
   });
 
   if (!existingCard) {
     await prisma.card.create({
       data: {
-        title: "Website Company Profile - PT Maju Jaya",
+        title: "Company Profile Website - PT Maju Jaya",
         clientName: "PT Maju Jaya",
-        clientContact: "budi@majujaya.com / 0812-3456-7890",
-        description: "Lead dari form kontak website, butuh company profile 5 halaman.",
+        clientContact: "budi@majujaya.com / +62 812-3456-7890",
+        description: "Lead from the website contact form, needs a 5-page company profile.",
         status: "NEW_LEAD",
         createdById: sales.id,
         activities: {
           create: {
             authorId: sales.id,
             type: "SALES_UPDATE",
-            content: "Lead masuk dari form kontak website, sudah dihubungi via WhatsApp.",
+            content: "Lead came in from the website contact form, already contacted via WhatsApp.",
           },
         },
       },
     });
   }
 
-  console.log("Seed selesai. Akun demo (password: %s):", DEMO_PASSWORD);
+  console.log("Seed complete. Demo accounts (password: %s):", DEMO_PASSWORD);
   createdUsers.forEach((u) => console.log(`- ${u.role}: ${u.email}`));
 }
 

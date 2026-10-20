@@ -10,6 +10,7 @@ const TYPE_DOT: Record<ActivityType, string> = {
   MARKETING_OFFER: "bg-violet-500",
   STATUS_CHANGE: "bg-zinc-400",
   NOTE: "bg-zinc-400",
+  REPLY: "bg-blue-500",
 };
 
 const TYPE_BADGE: Record<ActivityType, string> = {
@@ -18,6 +19,7 @@ const TYPE_BADGE: Record<ActivityType, string> = {
   MARKETING_OFFER: "bg-violet-100 text-violet-700",
   STATUS_CHANGE: "bg-zinc-200 text-zinc-600",
   NOTE: "bg-zinc-100 text-zinc-600",
+  REPLY: "bg-blue-100 text-blue-700",
 };
 
 export type FeedEntry = {
@@ -31,14 +33,14 @@ export type FeedEntry = {
 };
 
 function formatTime(date: Date) {
-  return new Intl.DateTimeFormat("id-ID", { timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat("en-US", { timeStyle: "short" }).format(date);
 }
 
 function formatCurrency(value: unknown) {
   if (value == null) return null;
   const num = Number(String(value));
   if (Number.isNaN(num)) return null;
-  return new Intl.NumberFormat("id-ID", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,
@@ -55,9 +57,9 @@ function dateGroupLabel(date: Date) {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
 
-  if (isSameDay(date, today)) return "Hari ini";
-  if (isSameDay(date, yesterday)) return "Kemarin";
-  return new Intl.DateTimeFormat("id-ID", {
+  if (isSameDay(date, today)) return "Today";
+  if (isSameDay(date, yesterday)) return "Yesterday";
+  return new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -69,7 +71,7 @@ export function ActivityTimelineFeed({ entries }: { entries: FeedEntry[] }) {
   if (entries.length === 0) {
     return (
       <p className="rounded-md border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-400">
-        Tidak ada aktivitas untuk filter ini.
+        No activity for this filter.
       </p>
     );
   }
@@ -97,16 +99,16 @@ export function ActivityTimelineFeed({ entries }: { entries: FeedEntry[] }) {
             {group.items.map((entry) => (
               <div key={entry.id} className="relative">
                 <span
-                  className={`absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-white ${TYPE_DOT[entry.type]}`}
+                  className={`absolute -left-[29px] top-6 h-2.5 w-2.5 rounded-full ring-4 ring-white ${TYPE_DOT[entry.type]}`}
                 />
 
-                <div className="flex items-start gap-3">
+                <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4">
                   <Avatar
                     avatarUrl={entry.author.avatarUrl}
                     initials={getInitials(entry.author.name)}
-                    size={32}
+                    size={36}
                   />
-                  <div className="flex-1">
+                  <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium text-zinc-900">
                         {entry.author.name}
@@ -119,9 +121,6 @@ export function ActivityTimelineFeed({ entries }: { entries: FeedEntry[] }) {
                       >
                         {ACTIVITY_TYPE_LABELS[entry.type]}
                       </span>
-                      <span className="text-xs text-zinc-400">
-                        {formatTime(entry.createdAt)}
-                      </span>
                     </div>
 
                     <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-700">
@@ -130,13 +129,18 @@ export function ActivityTimelineFeed({ entries }: { entries: FeedEntry[] }) {
 
                     {entry.offerAmount != null && (
                       <p className="mt-1 text-sm font-medium text-violet-700">
-                        Nilai penawaran: {formatCurrency(entry.offerAmount)}
+                        Offer amount: {formatCurrency(entry.offerAmount)}
                       </p>
                     )}
+                  </div>
 
+                  <div className="flex shrink-0 items-center gap-3 sm:w-64 sm:flex-col sm:items-end sm:gap-1.5">
+                    <span className="text-xs text-zinc-400">
+                      {formatTime(entry.createdAt)}
+                    </span>
                     <Link
                       href={`/cards/${entry.card.id}`}
-                      className="mt-1 inline-block text-xs font-medium text-brand hover:underline"
+                      className="max-w-full truncate rounded-md bg-brand/10 px-2.5 py-1 text-xs font-medium text-brand transition-colors hover:bg-brand/20"
                     >
                       {entry.card.title} →
                     </Link>

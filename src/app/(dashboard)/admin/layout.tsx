@@ -15,9 +15,9 @@ export default async function AdminLayout({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold text-zinc-900">Panel Admin</h1>
+        <h1 className="text-lg font-semibold text-zinc-900">Admin Panel</h1>
         <p className="text-sm text-zinc-500">
-          Kelola seluruh data user dan card di sistem.
+          Manage all user and card data in the system.
         </p>
       </div>
 

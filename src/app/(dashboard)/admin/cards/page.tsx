@@ -2,10 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { EditCardDialog } from "@/components/admin/EditCardDialog";
 
 const STATUS_LABELS: Record<string, string> = {
-  NEW_LEAD: "Lead Baru",
-  IN_PROGRESS: "Dikerjakan",
-  DONE: "Selesai",
-  CANCELLED: "Batal",
+  NEW_LEAD: "New Lead",
+  IN_PROGRESS: "In Progress",
+  DONE: "Done",
+  CANCELLED: "Cancelled",
 };
 
 const STATUS_BADGE: Record<string, string> = {
@@ -38,7 +38,7 @@ export default async function AdminCardsPage() {
           <tr>
             <th className="px-4 py-3 font-medium">Card</th>
             <th className="px-4 py-3 font-medium">Status</th>
-            <th className="px-4 py-3 font-medium">Dibuat oleh</th>
+            <th className="px-4 py-3 font-medium">Created by</th>
             <th className="px-4 py-3 font-medium">Developer</th>
             <th className="px-4 py-3 font-medium"></th>
           </tr>

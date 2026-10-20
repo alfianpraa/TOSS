@@ -6,10 +6,10 @@ import type { CardStatus } from "@prisma/client";
 import { adminDeleteCard, adminUpdateCard } from "@/lib/actions/admin";
 
 const STATUS_OPTIONS: { value: CardStatus; label: string }[] = [
-  { value: "NEW_LEAD", label: "Lead Baru" },
-  { value: "IN_PROGRESS", label: "Dikerjakan" },
-  { value: "DONE", label: "Selesai" },
-  { value: "CANCELLED", label: "Batal" },
+  { value: "NEW_LEAD", label: "New Lead" },
+  { value: "IN_PROGRESS", label: "In Progress" },
+  { value: "DONE", label: "Done" },
+  { value: "CANCELLED", label: "Cancelled" },
 ];
 
 const fieldClass =
@@ -88,7 +88,7 @@ export function EditCardDialog({
 
             <form ref={formRef} onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
               <div className="flex flex-col gap-1">
-                <label className={labelClass}>Judul Project</label>
+                <label className={labelClass}>Project Title</label>
                 <input
                   name="title"
                   defaultValue={card.title}
@@ -99,7 +99,7 @@ export function EditCardDialog({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className={labelClass}>Nama Client</label>
+                  <label className={labelClass}>Client Name</label>
                   <input
                     name="clientName"
                     defaultValue={card.clientName}
@@ -108,7 +108,7 @@ export function EditCardDialog({
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className={labelClass}>Kontak Client</label>
+                  <label className={labelClass}>Client Contact</label>
                   <input
                     name="clientContact"
                     defaultValue={card.clientContact ?? ""}
@@ -118,7 +118,7 @@ export function EditCardDialog({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className={labelClass}>Deskripsi</label>
+                <label className={labelClass}>Description</label>
                 <textarea
                   name="description"
                   defaultValue={card.description ?? ""}
@@ -145,7 +145,7 @@ export function EditCardDialog({
                     defaultValue={card.assignedDeveloperId ?? ""}
                     className={fieldClass}
                   >
-                    <option value="">Belum diambil</option>
+                    <option value="">Not claimed yet</option>
                     {developers.map((dev) => (
                       <option key={dev.id} value={dev.id}>
                         {dev.name}
@@ -163,7 +163,7 @@ export function EditCardDialog({
                   onClick={() => setConfirmDelete(true)}
                   className="cursor-pointer text-xs font-medium text-red-600 hover:underline"
                 >
-                  Hapus Card
+                  Delete Card
                 </button>
                 <div className="flex gap-2">
                   <button
@@ -171,14 +171,14 @@ export function EditCardDialog({
                     onClick={() => setOpen(false)}
                     className="cursor-pointer rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50"
                   >
-                    Batal
+                    Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={pending}
                     className="cursor-pointer rounded-md bg-brand px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {pending ? "Menyimpan..." : "Simpan"}
+                    {pending ? "Saving..." : "Save"}
                   </button>
                 </div>
               </div>
@@ -191,11 +191,11 @@ export function EditCardDialog({
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
             <h2 className="text-base font-semibold text-zinc-900">
-              Hapus card ini?
+              Delete this card?
             </h2>
             <p className="mt-1 text-sm text-zinc-500">
-              Seluruh riwayat laporan &amp; aktivitas di card &quot;{card.title}&quot;
-              akan ikut terhapus permanen. Tindakan ini tidak bisa dibatalkan.
+              All report &amp; activity history on card &quot;{card.title}&quot;
+              will be permanently deleted. This action cannot be undone.
             </p>
             <div className="mt-5 flex justify-end gap-2">
               <button
@@ -204,7 +204,7 @@ export function EditCardDialog({
                 disabled={pending}
                 className="cursor-pointer rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Batal
+                Cancel
               </button>
               <button
                 type="button"
@@ -212,7 +212,7 @@ export function EditCardDialog({
                 disabled={pending}
                 className="cursor-pointer rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {pending ? "Menghapus..." : "Ya, Hapus"}
+                {pending ? "Deleting..." : "Yes, delete"}
               </button>
             </div>
           </div>

@@ -12,14 +12,14 @@ import { SESSION_COOKIE_PATTERN } from "@/lib/session-cookie";
 
 const signupSchema = z
   .object({
-    name: z.string().min(2, "Nama minimal 2 karakter"),
-    email: z.string().email("Email tidak valid"),
-    password: z.string().min(8, "Password minimal 8 karakter"),
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
     role: z.enum(["SALES", "DEVELOPER", "MARKETING"]),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Konfirmasi password tidak cocok",
+    message: "Password confirmation doesn't match",
     path: ["confirmPassword"],
   });
 
@@ -36,18 +36,18 @@ export async function signupAction(
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Data tidak valid." };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid data." };
   }
 
   if (!SELF_REGISTER_ROLES.includes(parsed.data.role)) {
-    return { error: "Role tidak diizinkan untuk daftar mandiri." };
+    return { error: "This role is not allowed for self-registration." };
   }
 
   const existing = await prisma.user.findUnique({
     where: { email: parsed.data.email },
   });
   if (existing) {
-    return { error: "Email sudah terdaftar. Silakan masuk." };
+    return { error: "Email is already registered. Please log in." };
   }
 
   const passwordHash = await bcrypt.hash(parsed.data.password, 10);
@@ -69,7 +69,7 @@ export async function signupAction(
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Akun dibuat, tapi gagal masuk otomatis. Silakan masuk manual." };
+      return { error: "Account created, but automatic login failed. Please log in manually." };
     }
     throw error;
   }

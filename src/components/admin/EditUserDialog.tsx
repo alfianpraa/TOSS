@@ -67,7 +67,7 @@ export function EditUserDialog({ user }: { user: AdminUserRow }) {
 
             <form ref={formRef} onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
               <div className="flex flex-col gap-1">
-                <label htmlFor={`name-${user.id}`} className={labelClass}>Nama</label>
+                <label htmlFor={`name-${user.id}`} className={labelClass}>Name</label>
                 <input
                   id={`name-${user.id}`}
                   name="name"
@@ -90,7 +90,7 @@ export function EditUserDialog({ user }: { user: AdminUserRow }) {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label htmlFor={`employeeId-${user.id}`} className={labelClass}>ID Karyawan</label>
+                <label htmlFor={`employeeId-${user.id}`} className={labelClass}>Employee ID</label>
                 <input
                   id={`employeeId-${user.id}`}
                   name="employeeId"
@@ -101,7 +101,7 @@ export function EditUserDialog({ user }: { user: AdminUserRow }) {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label htmlFor={`phone-${user.id}`} className={labelClass}>No. HP</label>
+                <label htmlFor={`phone-${user.id}`} className={labelClass}>Phone</label>
                 <input
                   id={`phone-${user.id}`}
                   name="phone"
@@ -136,14 +136,14 @@ export function EditUserDialog({ user }: { user: AdminUserRow }) {
                   onClick={() => setOpen(false)}
                   className="cursor-pointer rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50"
                 >
-                  Batal
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={pending}
                   className="cursor-pointer rounded-md bg-brand px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {pending ? "Menyimpan..." : "Simpan"}
+                  {pending ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>

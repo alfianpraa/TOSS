@@ -4,18 +4,19 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/lib/notify";
 
 async function requireAdmin() {
   const session = await auth();
   if (!session?.user || session.user.role !== "ADMIN") {
-    throw new Error("Hanya Admin yang bisa melakukan aksi ini.");
+    throw new Error("Only Admins can perform this action.");
   }
   return session;
 }
 
 const userSchema = z.object({
-  name: z.string().min(2, "Nama minimal 2 karakter"),
-  email: z.string().email("Email tidak valid"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email"),
   role: z.enum(["ADMIN", "SALES", "DEVELOPER", "MARKETING"]),
   employeeId: z.string().optional(),
   phone: z.string().optional(),
@@ -37,19 +38,19 @@ export async function adminUpdateUser(
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Data tidak valid." };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid data." };
   }
 
   const emailTaken = await prisma.user.findFirst({
     where: { email: parsed.data.email, NOT: { id: userId } },
   });
   if (emailTaken) {
-    return { error: "Email sudah dipakai user lain." };
+    return { error: "Email is already in use by another user." };
   }
 
   await prisma.user.update({
     where: { id: userId },
-    data: parsed.data,
+    data: { ...parsed.data, pendingRole: null },
   });
 
   revalidatePath("/admin/users");
@@ -57,9 +58,57 @@ export async function adminUpdateUser(
   return { success: true };
 }
 
+export async function approveRoleChange(userId: string) {
+  await requireAdmin();
+
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  if (!user.pendingRole) {
+    throw new Error("This user has no pending role change.");
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role: user.pendingRole, pendingRole: null },
+  });
+
+  await createNotification({
+    userId: user.id,
+    type: "ROLE_CHANGE_APPROVED",
+    message: `Your role change to ${user.pendingRole} has been approved.`,
+  });
+
+  revalidatePath("/admin/users");
+  revalidatePath("/", "layout");
+}
+
+export async function rejectRoleChange(userId: string) {
+  await requireAdmin();
+
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  if (!user.pendingRole) {
+    throw new Error("This user has no pending role change.");
+  }
+
+  const requestedRole = user.pendingRole;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { pendingRole: null },
+  });
+
+  await createNotification({
+    userId: user.id,
+    type: "ROLE_CHANGE_REJECTED",
+    message: `Your role change request to ${requestedRole} was rejected.`,
+  });
+
+  revalidatePath("/admin/users");
+  revalidatePath("/", "layout");
+}
+
 const cardSchema = z.object({
-  title: z.string().min(3, "Judul minimal 3 karakter"),
-  clientName: z.string().min(2, "Nama client wajib diisi"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  clientName: z.string().min(2, "Client name is required"),
   clientContact: z.string().optional(),
   description: z.string().optional(),
   status: z.enum(["NEW_LEAD", "IN_PROGRESS", "DONE", "CANCELLED"]),
@@ -83,7 +132,7 @@ export async function adminUpdateCard(
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Data tidak valid." };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid data." };
   }
 
   const { assignedDeveloperId, ...rest } = parsed.data;
@@ -91,28 +140,39 @@ export async function adminUpdateCard(
   if (assignedDeveloperId) {
     const dev = await prisma.user.findUnique({ where: { id: assignedDeveloperId } });
     if (!dev || dev.role !== "DEVELOPER") {
-      return { error: "Developer tidak valid." };
+      return { error: "Invalid developer." };
     }
   }
 
   if (parsed.data.status === "IN_PROGRESS" && !assignedDeveloperId) {
-    return { error: "Pilih developer sebelum set status Dikerjakan." };
+    return { error: "Pick a developer before setting status to In Progress." };
   }
+
+  const existingCard = await prisma.card.findUniqueOrThrow({ where: { id: cardId } });
 
   await prisma.$transaction([
     prisma.card.update({
       where: { id: cardId },
-      data: { ...rest, assignedDeveloperId: assignedDeveloperId ?? null },
+      data: { ...rest, assignedDeveloperId: assignedDeveloperId ?? null, pendingDeveloperId: null, pendingStatus: null },
     }),
     prisma.activity.create({
       data: {
         cardId,
         authorId: session.user.id,
         type: "STATUS_CHANGE",
-        content: `Data card diperbarui oleh Admin (${session.user.name}).`,
+        content: `Card data updated by Admin (${session.user.name}).`,
       },
     }),
   ]);
+
+  if (assignedDeveloperId && assignedDeveloperId !== existingCard.assignedDeveloperId) {
+    await createNotification({
+      userId: assignedDeveloperId,
+      type: "LEAD_ASSIGNED",
+      message: `${session.user.name} assigned you to lead "${rest.title}".`,
+      cardId,
+    });
+  }
 
   revalidatePath("/admin/cards");
   revalidatePath("/board");

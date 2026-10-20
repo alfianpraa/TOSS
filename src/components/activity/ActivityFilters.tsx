@@ -29,7 +29,7 @@ export function ActivityFilters({
         onChange={(e) => updateParam("user", e.target.value)}
         className={fieldClass}
       >
-        <option value="">Semua User</option>
+        <option value="">All Users</option>
         {users.map((u) => (
           <option key={u.id} value={u.id}>
             {u.name}
@@ -42,7 +42,7 @@ export function ActivityFilters({
         onChange={(e) => updateParam("type", e.target.value)}
         className={fieldClass}
       >
-        <option value="">Semua Jenis</option>
+        <option value="">All Types</option>
         {(Object.keys(ACTIVITY_TYPE_LABELS) as ActivityType[]).map((type) => (
           <option key={type} value={type}>
             {ACTIVITY_TYPE_LABELS[type]}
