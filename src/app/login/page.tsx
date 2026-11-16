@@ -34,16 +34,18 @@ export default async function LoginPage({
               <LoginForm callbackUrl={callbackUrl} />
             </div>
 
-            <div className="mt-5 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-500">
-              <p className="font-medium text-zinc-700">Demo accounts</p>
-              <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1">
-                <p>sales@demo.com</p>
-                <p>developer@demo.com</p>
-                <p>marketing@demo.com</p>
-                <p>admin@demo.com</p>
+            {process.env.NODE_ENV !== "production" && (
+              <div className="mt-5 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-500">
+                <p className="font-medium text-zinc-700">Demo accounts (dev only)</p>
+                <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1">
+                  <p>sales@demo.com</p>
+                  <p>developer@demo.com</p>
+                  <p>marketing@demo.com</p>
+                  <p>admin@demo.com</p>
+                </div>
+                <p className="mt-1.5 text-zinc-400">Password for all: Password123!</p>
               </div>
-              <p className="mt-1.5 text-zinc-400">Password for all: Password123!</p>
-            </div>
+            )}
           </div>
         </div>
 
