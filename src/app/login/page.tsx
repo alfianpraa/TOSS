@@ -15,7 +15,7 @@ export default async function LoginPage({
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center p-4 sm:p-8">
       <AnimatedBackground />
-      <div className="flex w-full max-w-4xl overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl">
+      <div className="flex w-full max-w-4xl overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl lg:min-h-[600px]">
         <div className="flex w-full flex-col justify-center px-6 py-6 sm:px-10 lg:w-1/2 lg:px-10">
           <div className="mx-auto w-full max-w-sm">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-dark text-white">
